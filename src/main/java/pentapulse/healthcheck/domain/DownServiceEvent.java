@@ -3,11 +3,12 @@ package pentapulse.healthcheck.domain;
 import pentapulse.healthcheck.application.ServiceStatus;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class DownServiceEvent extends ServiceEvent {
-    private int monthlyDownCount;
+    private final int monthlyDownCount;
 
-    public DownServiceEvent(String serviceName, LocalDateTime timestamp, ServiceStatus status, String message, int monthlyDownCount) {
+    public DownServiceEvent(String serviceName, Date timestamp, ServiceStatus status, String message, int monthlyDownCount) {
         super(serviceName, timestamp, status, message);
         this.monthlyDownCount = monthlyDownCount;
     }

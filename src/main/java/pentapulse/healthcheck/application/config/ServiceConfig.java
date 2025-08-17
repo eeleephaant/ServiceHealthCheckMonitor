@@ -1,7 +1,7 @@
 package pentapulse.healthcheck.application.config;
 
+import java.util.List;
+
 public class ServiceConfig {
-    public String name;
-    public String url;
-    public int checkIntervalSeconds;
+    List<ServiceUnit> services;
 }

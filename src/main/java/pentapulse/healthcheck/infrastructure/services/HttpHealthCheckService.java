@@ -2,7 +2,7 @@ package pentapulse.healthcheck.infrastructure.services;
 
 import pentapulse.healthcheck.application.AbstractHealthCheckService;
 import pentapulse.healthcheck.application.Notifier;
-import pentapulse.healthcheck.application.ServiceEventRepository;
+import pentapulse.healthcheck.domain.contracts.ServiceEventRepository;
 import pentapulse.healthcheck.domain.Heartbeat;
 import pentapulse.healthcheck.domain.Service;
 

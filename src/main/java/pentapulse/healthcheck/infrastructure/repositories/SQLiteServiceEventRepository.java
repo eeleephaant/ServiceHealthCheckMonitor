@@ -1,9 +1,10 @@
 package pentapulse.healthcheck.infrastructure.repositories;
 
-import pentapulse.healthcheck.application.ServiceEventRepository;
+import pentapulse.healthcheck.domain.contracts.ServiceEventRepository;
 import pentapulse.healthcheck.domain.ServiceEvent;
 
 import java.sql.*;
+import java.util.Date;
 import java.util.List;
 
 public class SQLiteServiceEventRepository implements ServiceEventRepository {
@@ -53,5 +54,17 @@ public class SQLiteServiceEventRepository implements ServiceEventRepository {
     public List<ServiceEvent> getEvents(String serviceName, int limit) {
         // TODO: Implement this
         return List.of();
+    }
+
+    @Override
+    public int getDownEventCountForMonth(String serviceName) {
+        // TODO: Implement this
+        return 0;
+    }
+
+    @Override
+    public Date getLastDownEventTime(String serviceName) {
+        // TODO: Implement this
+        return null;
     }
 }

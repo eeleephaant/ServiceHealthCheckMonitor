@@ -1,10 +1,15 @@
 package pentapulse.healthcheck.application.config;
 
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.FileReader;
 import java.io.IOException;
 
 public class ConfigLoader {
     public static Config load(String path) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        return mapper.readValue(new File(path), Config.class);
+        Yaml yaml = new Yaml();
+        FileReader fileReader = new FileReader(path);
+
+        return yaml.loadAs(fileReader, Config.class);
     }
 }

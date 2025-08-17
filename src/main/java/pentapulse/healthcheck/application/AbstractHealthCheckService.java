@@ -1,15 +1,18 @@
 package pentapulse.healthcheck.application;
 
 import pentapulse.healthcheck.domain.*;
+import pentapulse.healthcheck.domain.contracts.ServiceEventRepository;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public abstract class AbstractHealthCheckService implements Runnable {
     protected Service service;
     protected Notifier notifier;
     protected boolean lastState;
-    private ServiceEventRepository eventRepository;
+    private final ServiceEventRepository eventRepository;
 
     public AbstractHealthCheckService(Service service, ServiceEventRepository eventRepository, Notifier notifier) {
         this.service = service;
@@ -26,21 +29,33 @@ public abstract class AbstractHealthCheckService implements Runnable {
         switch (serviceStatus) {
             case SERVICE_STOPPED:
             {
-                //TODO: Harvest monthly down count
-                this.notifier.notify(new DownServiceEvent(service.getName(), LocalDateTime.now(), serviceStatus, heartbeat.getError(), 0));
+                int downCount = this.eventRepository.getDownEventCountForMonth(this.service.getName());
+                this.notifier.notify(new DownServiceEvent(service.getName(), Date.from(Instant.now()), serviceStatus, heartbeat.getError(), downCount));
                 break;
             }
             case SERVICE_RUNNING:
             {
-                //TODO: Harvest downtime duration
-                this.notifier.notify(new WakeupServiceEvent(service.getName(), LocalDateTime.now(), serviceStatus, heartbeat.getError(), Duration.ofHours(0)));
+                Date lastDownEventTime = this.eventRepository.getLastDownEventTime(this.service.getName());
+                Duration downtime = getDowntimeDuration(lastDownEventTime, Date.from(Instant.now()));
+                this.notifier.notify(new WakeupServiceEvent(service.getName(), Date.from(Instant.now()), serviceStatus, heartbeat.getError(), downtime));
             }
         }
     }
 
+    private Duration getDowntimeDuration(Date lastDownEventTime, Date upEventTime) {
+        if (lastDownEventTime == null || upEventTime == null) {
+            throw new IllegalArgumentException("Dates must not be null");
+        }
+
+        Instant down = lastDownEventTime.toInstant();
+        Instant up = upEventTime.toInstant();
+
+        return Duration.between(down, up);
+    }
+
     protected void saveServiceStatus(Heartbeat heartbeat) {
-        String serviceStatus = heartbeat.isOk() ? ServiceStatus.SERVICE_RUNNING.getStringLiteral() : ServiceStatus.SERVICE_STOPPED.getStringLiteral();
-        ServiceEvent event = new ServiceEvent(service.getName(), LocalDateTime.now(), serviceStatus, heartbeat.getError());
+        ServiceStatus serviceStatus = heartbeat.isOk() ? ServiceStatus.SERVICE_RUNNING : ServiceStatus.SERVICE_STOPPED;
+        ServiceEvent event = new ServiceEvent(service.getName(), Date.from(Instant.now()), serviceStatus, heartbeat.getError());
         eventRepository.saveEvent(event);
     }
 
